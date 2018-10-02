@@ -1,3 +1,5 @@
+% "main" file for experimenting
+
 %sampling frequency
 fs = 48000;
 
@@ -5,64 +7,24 @@ fs = 48000;
 fc = 440;
 
 %amplitude
-A = 1.0;
+A = 1;
 
-%change this variable to select waveform
-%{
-0 = Square wave
-1 = triangle wave
-2 = reverse sawtooth wave
-3 = sawtooth wave
-%}
+%exponential fade out factor
+fade = 0;
 
-type = 0;
+%duration in seconds
+duration = 2;
 
 %number of frequency harmonics
-max = 25;
+max = 100;
 
-x = [0:1/fs:1-1/fs];
-y = 0;
+y1 = square_offset_t(1, 200, fade, duration, fs);
+y2 = square_t(4, max, fc, fade, duration, fs);
 
+y = y1.*y2;
 
+x = [0:1/fs:duration-1/fs];
 
+plot(x(1:round(fs/fc)), y1(1:round(fs/fc)));
 
-if type == 0
-    for i = 1:2:max
-        y = y + A./i.*sin(fc.*2.*pi.*x.*i);
-    end
-
-elseif type == 1
-    for i = 0:max
-
-        n = 2.*i + 1;
-
-        if mod(i,2) == 0
-            y = y + A.*(n)^(-2).*sin(n.*x.*2.*pi.*fc);
-        else
-            y = y - A.*(n)^(-2).*sin(n.*x.*2.*pi.*fc);
-        end
-    end
-
-elseif type == 2
-    for i = 1:max
-        if mod(i,2) == 0
-            y = y + 2.*A/(i).*sin(2.*pi.*fc.*x.*i); 
-        else
-            y = y - 2.*A/(i).*sin(2.*pi.*fc.*x.*i); 
-        end
-    end
-
-elseif type == 3
-    for i = 1:max
-        if mod(i,2) == 0
-            y = y - A/(pi.*i).*sin(2.*pi.*fc.*x.*i); 
-        else
-            y = y + A/(pi.*i).*sin(2.*pi.*fc.*x.*i); 
-        end
-    end
-end
-
-plot(x(1:round(fs/fc)), y(1:round(fs/fc)));
-
-
-soundsc(y,fs);
+soundsc(y1,fs);
