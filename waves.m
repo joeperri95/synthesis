@@ -1,5 +1,8 @@
 % "main" file for experimenting
 
+clear all
+clc
+
 %sampling frequency
 fs = 48000;
 
@@ -12,19 +15,29 @@ A = 1;
 %exponential fade out factor
 fade = 0;
 
-%duration in seconds
-duration = 2;
+%total duration
+t_duration = 4;
+
+x = [0:1/fs:t_duration-1/fs];
+
+%sample duration in seconds
+duration = 1;
 
 %number of frequency harmonics
 max = 100;
 
-y1 = square_offset_t(1, 200, fade, duration, fs);
-y2 = square_t(4, max, fc, fade, duration, fs);
+y1 = sine_t(1, 220, 0, 2, fs);
+y2 = square_t(0.5, max, fc, 5, duration, fs);
+y3 = saw_t(1, max, 70, 5, 1, fs);
+y4 = triangle_t(1, max, 110, 1, t_duration, fs);
 
-y = y1.*y2;
+ya = pad_t(t_duration, y2, 1, fs);
+yb = pad_t(t_duration, y1, 0, fs);
+yc = pad_t(t_duration, y3, 3, fs);
+yd = pad_t(t_duration, y4, 0, fs);
 
-x = [0:1/fs:duration-1/fs];
 
-plot(x(1:round(fs/fc)), y1(1:round(fs/fc)));
+y = add_t(ya, yb, fs);
+y = add_t(y, yc, fs);
 
-soundsc(y1,fs);
+soundsc(y,fs);
